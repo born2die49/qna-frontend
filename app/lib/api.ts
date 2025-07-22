@@ -1,3 +1,5 @@
+import { serverApiFetch } from "./serverApi";
+
 export type Question = {
   id: number;
   title: string;
@@ -15,37 +17,15 @@ export type Answer = {
   answered_by: string;
 };
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
-
 export async function getQuestions(): Promise<Question[]> {
-  const res = await fetch(`${API_URL}/api/questions/`);
-
-  if (!res.ok) {
-    // This will be caught by the Error Boundary
-    throw new Error('Failed to fetch questions');
-  }
-
-  return res.json();
+  // Use the new server-side fetcher
+  return serverApiFetch('/api/questions/');
 }
 
 export async function getQuestionById(id: string): Promise<Question> {
-  const res = await fetch(`${API_URL}/api/questions/${id}`);
-
-  if (!res.ok) {
-    // This will be caught by the Error Boundary
-    throw new Error('Failed to fetch questions');
-  }
-
-  return res.json();
+  return serverApiFetch(`/api/questions/${id}/`);
 }
 
 export async function getAnswersById(id: string): Promise<Answer[]> {
-  const res = await fetch(`${API_URL}/api/answers/${id}`);
-
-  if (!res.ok) {
-    // This will be caught by the Error Boundary
-    throw new Error('Failed to fetch questions');
-  }
-
-  return res.json();
+  return serverApiFetch(`/api/answers/${id}/`);
 }
