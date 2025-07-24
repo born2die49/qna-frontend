@@ -1,20 +1,27 @@
+// app/api/auth/profile/route.ts
+
 import { NextResponse } from 'next/server';
 import { serverApiFetch } from '@/app/lib/serverApi';
 
 export async function GET(request: Request) {
   try {
-    const backendResponse = await serverApiFetch('/api/auth/profile/',);
+    // `serverApiFetch` already returns the parsed JSON data.
+    const profileData = await serverApiFetch('/api/auth/profile/');
 
-    const data = await backendResponse.json();
+    // Simply return that data to the client.
+    return NextResponse.json(profileData);
 
-    if (!backendResponse.ok) {
-      // If even after a potential retry it's still not ok, pass the error on.
-      return NextResponse.json(data, { status: backendResponse.status });
+  } catch (error: any) {
+    // If serverApiFetch failed (e.g., token refresh failed), it will throw an error.
+    // We catch it here and return an appropriate status code.
+    console.error("API proxy error in /api/auth/profile:", error);
+    
+    // Check for a specific authentication error to return a 401
+    if (error.message.includes('Authentication failed')) {
+      return NextResponse.json({ detail: 'Authentication failed. Please log in again.' }, { status: 401 });
     }
 
-    return NextResponse.json(data);
-  } catch (error) {
-    console.error("API proxy error:", error);
-    return NextResponse.json({ detail: 'An error occurred while fetching profile.' }, { status: 500 });
+    // Otherwise, return a generic 500 error.
+    return NextResponse.json({ detail: 'An internal server error occurred.' }, { status: 500 });
   }
 }

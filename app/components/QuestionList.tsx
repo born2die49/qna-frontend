@@ -2,7 +2,19 @@ import { getQuestions, Question } from "@/app/lib/api";
 import Link from "next/link";
 
 export default async function QuestionList() {
-  const questions = await getQuestions();
+  let questions: Question[];
+
+  try {
+    questions = await getQuestions();
+  } catch (error) {
+    console.error("Error fetching questions in component:", error);
+    return (
+      <div className="p-4 border rounded-lg bg-red-50 border-red-200 text-red-800">
+        <h3 className="font-bold">Could not load questions</h3>
+        <p>Your session may have expired. Please refresh the page or try logging out and logging back in.</p>
+      </div>
+    );
+  }
 
   if (questions.length === 0) {
     return <p>No questions have been asked yet. Be the first!</p>;
